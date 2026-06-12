@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les volcans — CM2</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #21263a;
+    --border: rgba(255,255,255,0.08);
+    --accent: #E8601A;
+    --accent2: #F0A030;
+    --text: #f0ede8;
+    --muted: #9a96a0;
+    --teal: #2EC4A0;
+    --blue: #4A8FE8;
+    --red: #E05050;
+    --green: #52B788;
+    --r: 10px;
+  }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  h1 { font-size: 1.3rem; font-weight: 600; }
+  h2 { font-size: 1.1rem; font-weight: 600; }
+  h3 { font-size: 0.95rem; font-weight: 600; }
+
+  /* NAV */
+  .nav { display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .nav-title { font-size: 0.85rem; color: var(--muted); margin-right: 8px; white-space: nowrap; }
+  .tab { padding: 7px 15px; border-radius: 6px; border: 1px solid transparent; font-size: 0.82rem; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.15s; white-space: nowrap; }
+  .tab:hover { color: var(--text); background: var(--card); }
+  .tab.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* PANELS */
+  .panel { display: none; padding: 20px; max-width: 900px; margin: 0 auto; animation: fadeIn 0.2s; }
+  .panel.on { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS & GRIDS */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+
+  /* STAT CARDS */
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; text-align: center; }
+  .stat .num { font-size: 1.8rem; font-weight: 700; color: var(--accent2); }
+  .stat .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+  /* SECTION LABEL */
+  .sl { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+
+  /* BADGE */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600; }
+  .badge-orange { background: rgba(232,96,26,0.2); color: var(--accent); }
+  .badge-teal { background: rgba(46,196,160,0.15); color: var(--teal); }
+  .badge-blue { background: rgba(74,143,232,0.15); color: var(--blue); }
+
+  /* BODY TEXT */
+  p.body { font-size: 0.88rem; line-height: 1.75; color: #ccc; }
+  .mb { margin-bottom: 16px; }
+  .mb2 { margin-bottom: 24px; }
+  .mt { margin-top: 12px; }
+  .mt2 { margin-top: 20px; }
+  strong.hl { color: var(--accent2); }
+
+  /* VOLCANO DIAGRAM */
+  .volcano-wrap { display: flex; justify-content: center; margin: 8px 0; }
+  .layer-info { min-height: 70px; padding: 12px 16px; background: var(--surface); border-left: 3px solid var(--teal); border-radius: 0 var(--r) var(--r) 0; margin-top: 10px; }
+  .layer-info h3 { color: var(--teal); margin-bottom: 6px; font-size: 0.9rem; }
+  .layer-info p { font-size: 0.83rem; line-height: 1.7; color: #bbb; }
+  .leg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 10px; }
+  .leg-item { padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  .leg-item:hover { border-color: var(--teal); }
+  .leg-item .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .leg-item span { font-size: 0.8rem; }
+  .leg-item .sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+  /* WORLD LIST */
+  .witem { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .witem:last-child { border-bottom: none; }
+  .wicon { width: 36px; height: 36px; border-radius: 8px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+  .wname { font-size: 0.9rem; font-weight: 600; }
+  .wloc { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  /* QUIZ */
+  .qprogress { height: 3px; background: var(--border); border-radius: 99px; margin-bottom: 20px; overflow: hidden; }
+  .qprogress-fill { height: 100%; background: var(--teal); border-radius: 99px; transition: width 0.4s; }
+  .qq { font-size: 1rem; font-weight: 600; line-height: 1.5; margin-bottom: 16px; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt { padding: 11px 16px; border: 1px solid var(--border); border-radius: 8px; text-align: left; cursor: pointer; background: var(--surface); color: var(--text); font-size: 0.88rem; transition: all 0.15s; }
+  .opt:hover:not(:disabled) { border-color: var(--accent2); background: var(--card); }
+  .opt.correct { background: rgba(82,183,136,0.15); border-color: var(--green); color: var(--green); }
+  .opt.wrong { background: rgba(224,80,80,0.12); border-color: var(--red); color: var(--red); }
+  .feedback { margin-top: 14px; padding: 11px 14px; border-radius: 8px; font-size: 0.84rem; line-height: 1.65; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: rgba(82,183,136,0.12); border: 1px solid var(--green); color: #a8dfc0; }
+  .feedback.bad { background: rgba(224,80,80,0.1); border: 1px solid var(--red); color: #f0a8a8; }
+  .qnav { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+  .qbtn { padding: 8px 20px; border: 1px solid var(--border); border-radius: 7px; cursor: pointer; background: var(--surface); color: var(--text); font-size: 0.84rem; transition: all 0.15s; }
+  .qbtn:hover { background: var(--card); border-color: var(--accent2); }
+  .qsc { font-size: 0.8rem; color: var(--muted); }
+  .final { text-align: center; padding: 30px 0; }
+  .final .big { font-size: 3rem; font-weight: 700; color: var(--accent2); }
+  .final .msg { font-size: 0.95rem; color: var(--muted); margin-top: 8px; }
+  .rbtn { margin-top: 20px; padding: 10px 28px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: var(--surface); color: var(--text); font-size: 0.9rem; }
+
+  /* ACTIVITIES */
+  .act { border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; margin-bottom: 10px; background: var(--card); }
+  .act-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .act-body { font-size: 0.82rem; color: #bbb; line-height: 1.75; }
+
+  svg text { cursor: default; user-select: none; }
+  svg [onclick] { cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <span class="nav-title">🌋 Les volcans — CM2</span>
+  <button class="tab on" onclick="show('decouverte', this)">Découverte</button>
+  <button class="tab" onclick="show('anatomie', this)">Anatomie</button>
+  <button class="tab" onclick="show('volcans', this)">Volcans célèbres</button>
+  <button class="tab" onclick="show('quiz', this)">Quiz</button>
+  <button class="tab" onclick="show('activites', this)">À faire</button>
+</div>
+
+<!-- ===== DÉCOUVERTE ===== -->
+<div id="tab-decouverte" class="panel on">
+  <p class="sl">Le saviez-vous ?</p>
+  <div class="grid-4 mb2">
+    <div class="stat"><div class="num">1 500</div><div class="lbl">volcans actifs sur Terre</div></div>
+    <div class="stat"><div class="num">50–70</div><div class="lbl">éruptions par an</div></div>
+    <div class="stat"><div class="num">800°C</div><div class="lbl">température de la lave</div></div>
+    <div class="stat"><div class="num">500 M</div><div class="lbl">personnes vivent près d'un volcan</div></div>
+  </div>
+
+  <div class="card mb">
+    <h2 class="mb" style="color:var(--accent2)">Qu'est-ce qu'un volcan ?</h2>
+    <p class="body">Un volcan est une ouverture dans la croûte terrestre par laquelle du magma (roche fondue), des gaz et des cendres s'échappent depuis l'intérieur de la Terre. Quand le magma sort en surface, on l'appelle la <strong class="hl">lave</strong>. Une éruption volcanique peut être <strong class="hl">explosive</strong> ou <strong class="hl">effusive</strong> selon la viscosité de la lave.</p>
+  </div>
+
+  <div class="card mb">
+    <h2 class="mb" style="color:var(--accent2)">Pourquoi les volcans entrent-ils en éruption ?</h2>
+    <p class="body">L'intérieur de la Terre est très chaud. Le magma est moins dense que les roches solides autour de lui — il remonte donc vers la surface comme une bulle d'huile dans l'eau. Quand la pression est trop forte, il s'échappe par le <strong class="hl">cratère</strong>.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-bottom:12px; color:var(--accent2)">3 types de volcans</h2>
+    <div class="grid-3">
+      <div style="padding:12px; background:var(--surface); border-radius:8px; border-left:3px solid var(--accent)">
+        <h3 style="color:var(--accent); margin-bottom:6px">Effusif</h3>
+        <p class="body" style="font-size:0.82rem">Lave fluide qui coule doucement. Ex : Piton de la Fournaise (La Réunion).</p>
+      </div>
+      <div style="padding:12px; background:var(--surface); border-radius:8px; border-left:3px solid var(--red)">
+        <h3 style="color:var(--red); margin-bottom:6px">Explosif</h3>
+        <p class="body" style="font-size:0.82rem">Lave visqueuse, explosions violentes, cendres. Ex : Vésuve (Italie).</p>
+      </div>
+      <div style="padding:12px; background:var(--surface); border-radius:8px; border-left:3px solid var(--blue)">
+        <h3 style="color:var(--blue); margin-bottom:6px">Sous-marin</h3>
+        <p class="body" style="font-size:0.82rem">Au fond des océans. Peuvent former des îles. Ex : Kīlauea (Hawaï).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ANATOMIE ===== -->
+<div id="tab-anatomie" class="panel">
+  <p class="sl">Clique sur une partie du volcan pour en savoir plus</p>
+  <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
+    <div class="volcano-wrap" style="flex:0 0 auto;">
+      <svg viewBox="0 0 320 310" width="300" height="290" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="252" width="320" height="58" fill="#2a2a3a"/>
+        <rect x="0" y="272" width="320" height="38" fill="#1e1e2e"/>
+        <ellipse cx="160" cy="285" rx="76" ry="26" fill="#E8A020" stroke="#BA7517" stroke-width="1.5" onclick="showLayer('magma')" style="cursor:pointer"/>
+        <text x="160" y="290" text-anchor="middle" font-size="11" fill="#3a2000" font-family="Arial">Chambre magmatique</text>
+        <polygon points="140,254 180,254 169,165 151,165" fill="#E05050" onclick="showLayer('conduit')" style="cursor:pointer"/>
+        <polygon points="34,254 286,254 212,96 108,96" fill="#444460"/>
+        <polygon points="108,96 212,96 194,56 126,56" fill="#2e2e45"/>
+        <path d="M126,56 Q88,76 48,138 Q30,168 40,198" stroke="#E8A020" stroke-width="5.5" fill="none" stroke-linecap="round" onclick="showLayer('lave')" style="cursor:pointer"/>
+        <path d="M194,56 Q232,82 260,148 Q274,178 265,208" stroke="#E05050" stroke-width="5" fill="none" stroke-linecap="round" onclick="showLayer('lave')" style="cursor:pointer"/>
+        <ellipse cx="160" cy="56" rx="28" ry="9" fill="#1a1a2e" stroke="#555" stroke-width="1" onclick="showLayer('cratere')" style="cursor:pointer"/>
+        <text x="160" y="60" text-anchor="middle" font-size="10" fill="#bbb" font-family="Arial">Cratère</text>
+        <ellipse cx="152" cy="36" rx="11" ry="7" fill="#555" opacity="0.6"/>
+        <ellipse cx="166" cy="24" rx="15" ry="9" fill="#444" opacity="0.5"/>
+        <ellipse cx="158" cy="12" rx="18" ry="10" fill="#555" opacity="0.4"/>
+        <text x="46" y="172" font-size="10" fill="#E8A020" font-family="Arial" onclick="showLayer('lave')" style="cursor:pointer">Lave</text>
+        <text x="186" y="215" font-size="10" fill="#E05050" font-family="Arial" onclick="showLayer('conduit')" style="cursor:pointer">Cheminée</text>
+        <path d="M192,126 Q222,116 248,121" stroke="#E05050" stroke-width="3.5" fill="none" stroke-linecap="round" onclick="showLayer('flanc')" style="cursor:pointer"/>
+        <text x="250" y="120" font-size="9" fill="#cc7070" font-family="Arial" onclick="showLayer('flanc')" style="cursor:pointer">Bouche sec.</text>
+      </svg>
+    </div>
+    <div style="flex:1; min-width:200px;">
+      <div id="layer-info" class="layer-info mb">
+        <h3>Clique sur le schéma</h3>
+        <p>Sélectionne une partie du volcan pour afficher son explication.</p>
+      </div>
+      <div class="leg-grid">
+        <div class="leg-item" onclick="showLayer('cratere')">
+          <span><span class="dot" style="background:#888"></span>Cratère</span>
+          <div class="sub">Ouverture au sommet</div>
+        </div>
+        <div class="leg-item" onclick="showLayer('lave')">
+          <span><span class="dot" style="background:#E8A020"></span>Lave</span>
+          <div class="sub">Magma en surface</div>
+        </div>
+        <div class="leg-item" onclick="showLayer('conduit')">
+          <span><span class="dot" style="background:#E05050"></span>Cheminée</span>
+          <div class="sub">Canal principal</div>
+        </div>
+        <div class="leg-item" onclick="showLayer('magma')">
+          <span><span class="dot" style="background:#E8A020"></span>Chambre</span>
+          <div class="sub">Réservoir profond</div>
+        </div>
+        <div class="leg-item" onclick="showLayer('flanc')">
+          <span><span class="dot" style="background:#cc7070"></span>Bouche sec.</span>
+          <div class="sub">Sortie latérale</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VOLCANS CÉLÈBRES ===== -->
+<div id="tab-volcans" class="panel">
+  <p class="sl">Volcans à connaître</p>
+  <div class="card mb">
+    <div class="witem"><div class="wicon">🌋</div><div><div class="wname">Piton de la Fournaise</div><div class="wloc">Île de La Réunion, France — Effusif — Très actif, coulées de lave fréquentes</div></div></div>
+    <div class="witem"><div class="wicon">🔥</div><div><div class="wname">Vésuve</div><div class="wloc">Italie — Explosif — Détruisit Pompéi en 79 apr. J.-C.</div></div></div>
+    <div class="witem"><div class="wicon">🏝</div><div><div class="wname">Kīlauea</div><div class="wloc">Hawaï, États-Unis — Effusif — Parmi les plus actifs du monde</div></div></div>
+    <div class="witem"><div class="wicon">❄️</div><div><div class="wname">Eyjafjallajökull</div><div class="wloc">Islande — Explosif — Nuage de cendres en 2010, trafic aérien paralysé</div></div></div>
+    <div class="witem"><div class="wicon">🌿</div><div><div class="wname">Etna</div><div class="wloc">Sicile, Italie — Mixte — Plus haut volcan d'Europe (3 357 m)</div></div></div>
+    <div class="witem"><div class="wicon">🌏</div><div><div class="wname">Krakatoa</div><div class="wloc">Indonésie — Explosif — Éruption de 1883, entendue à 5 000 km</div></div></div>
+  </div>
+  <div class="card">
+    <h2 style="color:var(--accent2); margin-bottom:10px">La Ceinture de feu du Pacifique</h2>
+    <p class="body">Plus de <strong class="hl">75 %</strong> des volcans actifs se trouvent autour de l'océan Pacifique, dans une zone appelée la <strong class="hl">Ceinture de feu</strong>. C'est là que les plaques tectoniques se rencontrent et glissent les unes sous les autres, libérant une énergie colossale.</p>
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div id="tab-quiz" class="panel">
+  <div class="qprogress"><div class="qprogress-fill" id="qpf" style="width:0%"></div></div>
+  <div id="quiz-body"></div>
+</div>
+
+<!-- ===== ACTIVITÉS ===== -->
+<div id="tab-activites" class="panel">
+  <p class="sl">Activités pour la classe</p>
+  <div class="act"><div class="act-title"><span class="badge badge-teal">Dessin</span> Schéma légendé d'un volcan</div><p class="act-body">Dessine un volcan en coupe et légends au minimum 5 parties : cratère, lave, cheminée, chambre magmatique, cendres. Utilise des couleurs différentes pour chaque zone.</p></div>
+  <div class="act"><div class="act-title"><span class="badge badge-orange">Expérience</span> Volcan en bouteille</div><p class="act-body">Matériel : bouteille, bicarbonate de soude, vinaigre, colorant rouge. Verse du bicarbonate dans la bouteille, ajoute du colorant, puis verse le vinaigre. Observe la réaction et explique ce que représente chaque élément (magma, pression, éruption).</p></div>
+  <div class="act"><div class="act-title"><span class="badge badge-blue">Recherche</span> Fiche d'identité d'un volcan</div><p class="act-body">Choisis un volcan dans le monde. Trouve : son nom, son pays, son type, sa hauteur, la date de sa dernière éruption et une curiosité. Présente-le à la classe en affiche.</p></div>
+  <div class="act"><div class="act-title"><span class="badge badge-teal">Géographie</span> Carte de la Ceinture de feu</div><p class="act-body">Sur une carte du monde vierge, place les 6 volcans célèbres vus dans cette activité. Colorie en rouge la Ceinture de feu du Pacifique. Que remarques-tu ?</p></div>
+  <div class="act"><div class="act-title"><span class="badge badge-orange">Écriture</span> Journal d'une éruption</div><p class="act-body">Imagine que tu es un habitant de Pompéi le 24 août 79 apr. J.-C. Écris le journal de ta journée en décrivant ce que tu vois, entends et ressens lors de l'éruption du Vésuve. Utilise le vocabulaire du cours.</p></div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('tab-' + id).classList.add('on');
+  btn.classList.add('on');
+  if (id === 'quiz') renderQuiz();
+}
+
+const layers = {
+  cratere: { title: "Le cratère", color: "#aaa", text: "Le cratère est l'ouverture au sommet du volcan par laquelle sortent la lave, les gaz et les cendres lors d'une éruption. Il peut mesurer de quelques mètres à plusieurs kilomètres de diamètre." },
+  lave: { title: "La lave", color: "#E8A020", text: "La lave, c'est le magma qui a atteint la surface. À plus de 700 °C, elle peut couler sur des dizaines de kilomètres avant de refroidir et de former de nouvelles roches volcaniques (basalte, obsidienne)." },
+  conduit: { title: "La cheminée volcanique", color: "#E05050", text: "La cheminée est le canal par lequel le magma remonte de la chambre magmatique jusqu'au cratère. La pression exercée par les gaz pousse le magma vers le haut." },
+  magma: { title: "La chambre magmatique", color: "#E8A020", text: "Située à plusieurs kilomètres de profondeur, c'est un réservoir de roche fondue (magma) et de gaz. Quand la pression y devient trop forte, le magma remonte vers le cratère." },
+  flanc: { title: "La bouche secondaire", color: "#cc7070", text: "Parfois le magma ne sort pas uniquement par le sommet : il peut trouver des fissures sur les flancs du volcan et s'échapper par des bouches secondaires, créant des coulées latérales." },
+};
+function showLayer(id) {
+  const l = layers[id];
+  document.getElementById('layer-info').innerHTML = `<h3 style="color:${l.color}">${l.title}</h3><p>${l.text}</p>`;
+}
+
+const questions = [
+  { q: "Comment appelle-t-on la roche fondue qui se trouve sous la surface de la Terre ?", opts: ["La lave", "Le magma", "Le granite", "Le basalte"], ans: 1, exp: "Sous la Terre, on parle de <strong>magma</strong>. Une fois qu'il sort à la surface par le cratère, on l'appelle <strong>lave</strong>." },
+  { q: "Quelle est la partie du volcan par laquelle sort la lave lors d'une éruption ?", opts: ["La cheminée", "La chambre magmatique", "Le cratère", "Le flanc"], ans: 2, exp: "Le <strong>cratère</strong> est l'ouverture au sommet. C'est la sortie principale lors d'une éruption." },
+  { q: "Un volcan effusif se caractérise par :", opts: ["Des explosions très violentes", "Une lave fluide qui coule doucement", "D'immenses nuages de cendres", "Un silence total"], ans: 1, exp: "Les volcans effusifs produisent une lave peu visqueuse qui <strong>coule facilement</strong>. Le Piton de la Fournaise en est un exemple célèbre." },
+  { q: "Quelle ville antique a été détruite par l'éruption du Vésuve en 79 apr. J.-C. ?", opts: ["Rome", "Athènes", "Pompéi", "Carthage"], ans: 2, exp: "<strong>Pompéi</strong> a été ensevelie sous les cendres. La ville a été retrouvée presque intacte lors de fouilles archéologiques." },
+  { q: "Où se trouve la majorité des volcans actifs de la planète ?", opts: ["En Afrique", "En Europe", "Autour du Pacifique", "En Antarctique"], ans: 2, exp: "La <strong>Ceinture de feu du Pacifique</strong> concentre plus de 75 % des volcans actifs, à cause des mouvements des plaques tectoniques." },
+  { q: "Combien y a-t-il environ de volcans actifs sur Terre ?", opts: ["50", "300", "1 500", "10 000"], ans: 2, exp: "Il y a environ <strong>1 500 volcans actifs</strong>, dont une cinquantaine entrent en éruption chaque année." },
+  { q: "À quelle température peut atteindre la lave ?", opts: ["200 °C", "500 °C", "800 °C", "3 000 °C"], ans: 2, exp: "La lave peut atteindre <strong>800 °C à 1 200 °C</strong>. C'est pourquoi elle fait fondre tout ce qu'elle touche sur son passage." },
+];
+
+let cur = 0, score = 0, answered = false;
+function renderQuiz() {
+  if (cur >= questions.length) {
+    const pct = Math.round(score / questions.length * 100);
+    const msg = pct >= 80 ? "Excellent ! Tu maîtrises les volcans." : pct >= 50 ? "Bien joué ! Continue à réviser." : "Continue tes efforts, relis les autres onglets !";
+    document.getElementById('quiz-body').innerHTML = `<div class="final"><div class="big">${score}/${questions.length}</div><div class="msg">${msg}</div><button class="rbtn" onclick="resetQuiz()">Recommencer</button></div>`;
+    document.getElementById('qpf').style.width = '100%';
+    return;
+  }
+  const q = questions[cur];
+  document.getElementById('qpf').style.width = (cur / questions.length * 100) + '%';
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="card">
+      <div class="qsc" style="margin-bottom:10px">Question ${cur + 1} / ${questions.length}</div>
+      <div class="qq">${q.q}</div>
+      <div class="opts">${q.opts.map((o, i) => `<button class="opt" onclick="answer(${i})">${o}</button>`).join('')}</div>
+      <div class="feedback" id="qfb"></div>
+      <div class="qnav"><span></span><button class="qbtn" id="nbtn" style="display:none" onclick="nextQ()">Question suivante →</button></div>
+    </div>`;
+  answered = false;
+}
+function answer(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[cur];
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  const fb = document.getElementById('qfb');
+  if (i === q.ans) {
+    score++;
+    document.querySelectorAll('.opt')[i].classList.add('correct');
+    fb.className = 'feedback show good';
+  } else {
+    document.querySelectorAll('.opt')[i].classList.add('wrong');
+    document.querySelectorAll('.opt')[q.ans].classList.add('correct');
+    fb.className = 'feedback show bad';
+  }
+  fb.innerHTML = q.exp;
+  document.getElementById('nbtn').style.display = 'inline-block';
+}
+function nextQ() { cur++; renderQuiz(); }
+function resetQuiz() { cur = 0; score = 0; renderQuiz(); }
+</script>
+</body>
+</html>
